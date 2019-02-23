@@ -7,9 +7,9 @@
 int load_from_file(const char *filename, char **result) {
   int size = 0;
   FILE *f = fopen(filename, "rb");
-  if (f == NULL)
+  if (f == nullptr)
   {
-    *result = NULL;
+    *result = nullptr;
     return -1; // -1 means file opening fail
   }
   fseek(f, 0, SEEK_END);
