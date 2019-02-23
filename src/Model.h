@@ -9,12 +9,14 @@
 
 #include "../include/glad/glad.h"
 #include "ShaderProgram.h"
+#include "tiny_gltf.h"
 
 
 struct Model {
   unsigned int vaoID;
   int vertexCount;
   struct ShaderProgram* s;
+  tinygltf::Model* gltf;
 
 };
 

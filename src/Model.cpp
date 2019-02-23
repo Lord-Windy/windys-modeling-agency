@@ -41,19 +41,38 @@ int load_model(tinygltf::Model* m, char* path) {
 
 }
 
+void bind_node() {
+
+}
+
 struct Model* create_model(char* model_filepath, struct ShaderProgram* s) {
   auto m = (Model*) malloc(sizeof(struct Model));
   glGenVertexArrays(1, &(m->vaoID));
   glBindVertexArray(m->vaoID);
-  GLuint vbo = 0;
-  GLuint ebo = 0;
-  glGenBuffers(1, &vbo);
-  glGenBuffers(1, &ebo);
 
+  //glGenBuffers(1, &vbo);
+  //glGenBuffers(1, &ebo);
 
-  tinygltf::Model gltf;
+  m->gltf = new tinygltf::Model();
 
-  load_model(&gltf, model_filepath);
+  load_model(m->gltf, model_filepath);
+
+  auto* vbo = new GLuint[m->gltf->bufferViews.size()];
+  auto* ebo = new GLuint[m->gltf->bufferViews.size()];
+
+  for (int i = 0; i < m->gltf->bufferViews.size(); i++) {
+    auto &bufferView = m->gltf->bufferViews[i];
+    if (bufferView.target == 0) {
+      printf("BufferView is not configured or something. I dunno\n");
+      continue;
+    }
+    tinygltf::Buffer buffer = m->gltf->buffers[bufferView.buffer];
+    glGenBuffers(1, &vbo[i]);
+    glBindBuffer(bufferView.target, vbo[i]);
+    glBufferData(bufferView.target, bufferView.byteLength,
+                 &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
+  }
+
 
 
 
@@ -81,6 +100,8 @@ struct Model* create_model(char* model_filepath, struct ShaderProgram* s) {
 
   */
   unbind_vao();
+  delete[] vbo;
+  delete[] ebo;
 
   return m;
 }
