@@ -71,6 +71,28 @@ bool loadOBJ(
     }
   }
 
+// For each vertex of each triangle
+  for( unsigned int i=0; i<vertexIndices.size(); i++ ){
+
+    // Get the indices of its attributes
+    unsigned int vertexIndex = vertexIndices[i];
+    unsigned int uvIndex = uvIndices[i];
+    unsigned int normalIndex = normalIndices[i];
+
+    // Get the attributes thanks to the index
+    glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
+    glm::vec2 uv = temp_uvs[ uvIndex-1 ];
+    glm::vec3 normal = temp_normals[ normalIndex-1 ];
+
+    // Put the attributes in buffers
+    out_vertices.push_back(vertex);
+    out_uvs     .push_back(uv);
+    out_normals .push_back(normal);
+
+  }
+  fclose(file);
+  return true;
+
 }
 
 void bind_node() {
@@ -79,13 +101,24 @@ void bind_node() {
 
 struct Model* create_model(char* model_filepath, struct ShaderProgram* s) {
   auto m = (Model*) malloc(sizeof(struct Model));
+  m->s = s;
   glGenVertexArrays(1, &(m->vaoID));
   glBindVertexArray(m->vaoID);
 
-  //glGenBuffers(1, &vbo);
+  std::vector < glm::vec3 >  vertices;
+  std::vector < glm::vec2 >  uvs;
+  std::vector < glm::vec3 >  normal;
+
+  loadOBJ(model_filepath, vertices, uvs, normal);
+  GLuint vbo;
+  glGenBuffers(1, &vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+  m->vertexCount = vertices.size();
   //glGenBuffers(1, &ebo);
 
-
+  glVertexAttribPointer(0,3,GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(0);
 
 
 
@@ -106,8 +139,7 @@ struct Model* create_model(char* model_filepath, struct ShaderProgram* s) {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size*sizeof(GLuint), indices, GL_STATIC_DRAW);
   //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices2), indices2, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0,3,GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
+
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -122,8 +154,8 @@ void draw(struct Model *m) {
 
   glUseProgram(m->s->shaderProgram);
   glBindVertexArray(m->vaoID);
-  //glDrawArrays(GL_TRIANGLES, 0, m->vertexCount);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  glDrawArrays(GL_TRIANGLES, 0, m->vertexCount);
+  //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   unbind_vao();
 
 }

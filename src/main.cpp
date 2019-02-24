@@ -72,12 +72,12 @@ int main(int argc, char** argv) {
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   struct ShaderProgram* s = test();
-  struct Model* m = create_model("Unfinished/JpurneyStart.glb", s);
+  struct Model* m = create_model("Unfinished/Fridge.obj", s);
 
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  /*while(!glfwWindowShouldClose(window))
+  while(!glfwWindowShouldClose(window))
   {
     process_input(window);
 
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-  }*/
+  }
 
   glfwTerminate();
   return 0;
