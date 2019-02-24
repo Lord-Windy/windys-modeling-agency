@@ -1,5 +1,4 @@
 #include <iostream>
-#include "tiny_gltf.h"
 
 #include <stdio.h>
 

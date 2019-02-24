@@ -3,41 +3,73 @@
 
 
 #include "Model.h"
-
-// Define these only in *one* .cc file.
-#define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-// #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
-#include "tiny_gltf.h"
-
-
+#include <vector>
+#include <string.h>
+#include <string>
 
 void unbind_vao() {
   glBindVertexArray(0);
 }
 
-int load_model(tinygltf::Model* m, char* path) {
-  tinygltf::TinyGLTF loader;
-  std::string err;
-  std::string warn;
-
-  bool ret = loader.LoadBinaryFromFile(m, &err, &warn, path);
-
-  if (!warn.empty()) {
-    printf("Warn: %s\n", warn.c_str());
+bool loadOBJ(
+    const char * path,
+    std::vector < glm::vec3 > & out_vertices,
+    std::vector < glm::vec2 > & out_uvs,
+    std::vector < glm::vec3 > & out_normals
+)
+{
+  std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
+  std::vector< glm::vec3 > temp_vertices;
+  std::vector< glm::vec2 > temp_uvs;
+  std::vector< glm::vec3 > temp_normals;
+  FILE * file = fopen(path, "r");
+  if( file == NULL ){
+    printf("Impossible to open the file !\n");
+    return false;
   }
 
-  if (!err.empty()) {
-    printf("Err: %s\n", err.c_str());
-  }
+  while( 1 ) {
 
-  if (!ret) {
-    printf("Failed to parse glTF\n");
-    return -1;
-  }
+    char lineHeader[128];
+    // read the first word of the line
+    int res = fscanf(file, "%s", lineHeader);
+    if (res == EOF)
+      break; // EOF = End Of File. Quit the loop.
 
-  return 0;
+    if ( strcmp( lineHeader, "v" ) == 0 ){
+      glm::vec3 vertex;
+      fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z );
+      temp_vertices.push_back(vertex);
+    }else if ( strcmp( lineHeader, "vt" ) == 0 ){
+      glm::vec2 uv;
+      fscanf(file, "%f %f\n", &uv.x, &uv.y );
+      temp_uvs.push_back(uv);
+    }else if ( strcmp( lineHeader, "vn" ) == 0 ){
+      glm::vec3 normal;
+      fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z );
+      temp_normals.push_back(normal);
+    }else if ( strcmp( lineHeader, "f" ) == 0 ) {
+      std::string vertex1, vertex2, vertex3;
+      unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+      int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0],
+                           &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2],
+                           &normalIndex[2]);
+      if (matches != 9) {
+        printf("File can't be read by our simple parser : ( Try exporting with other options\n");
+        return false;
+      }
+      vertexIndices.push_back(vertexIndex[0]);
+      vertexIndices.push_back(vertexIndex[1]);
+      vertexIndices.push_back(vertexIndex[2]);
+      uvIndices.push_back(uvIndex[0]);
+      uvIndices.push_back(uvIndex[1]);
+      uvIndices.push_back(uvIndex[2]);
+      normalIndices.push_back(normalIndex[0]);
+      normalIndices.push_back(normalIndex[1]);
+      normalIndices.push_back(normalIndex[2]);
+
+    }
+  }
 
 }
 
@@ -53,25 +85,7 @@ struct Model* create_model(char* model_filepath, struct ShaderProgram* s) {
   //glGenBuffers(1, &vbo);
   //glGenBuffers(1, &ebo);
 
-  m->gltf = new tinygltf::Model();
 
-  load_model(m->gltf, model_filepath);
-
-  auto* vbo = new GLuint[m->gltf->bufferViews.size()];
-  auto* ebo = new GLuint[m->gltf->bufferViews.size()];
-
-  for (int i = 0; i < m->gltf->bufferViews.size(); i++) {
-    auto &bufferView = m->gltf->bufferViews[i];
-    if (bufferView.target == 0) {
-      printf("BufferView is not configured or something. I dunno\n");
-      continue;
-    }
-    tinygltf::Buffer buffer = m->gltf->buffers[bufferView.buffer];
-    glGenBuffers(1, &vbo[i]);
-    glBindBuffer(bufferView.target, vbo[i]);
-    glBufferData(bufferView.target, bufferView.byteLength,
-                 &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
-  }
 
 
 
@@ -100,8 +114,6 @@ struct Model* create_model(char* model_filepath, struct ShaderProgram* s) {
 
   */
   unbind_vao();
-  delete[] vbo;
-  delete[] ebo;
 
   return m;
 }
