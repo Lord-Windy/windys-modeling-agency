@@ -14,6 +14,8 @@ struct ShaderProgram {
   unsigned int vertexShader;
   unsigned int fragmentShader;
   unsigned int shaderProgram;
+  GLint time_variable;
+  GLint scanline_variable;
 };
 
 

@@ -25,6 +25,8 @@ struct ShaderProgram *new_shader(char *vertexSource, char *fragmentSource) {
     printf("Failed Program Compilation, error incoming. \n %s", infolog);
   }
 
+  s-> time_variable = glGetUniformLocation(s->shaderProgram, "seconds");
+  s-> scanline_variable = glGetUniformLocation(s->shaderProgram, "scanline");
 
 
   return s;

@@ -12,6 +12,8 @@
 #define D_HEIGHT 800
 #define D_WIDTH 800
 
+const float PI = 3.141592f;
+
 
 void framebuffer_size_callback(GLFWwindow* w, int width, int height) {
   glViewport(0,0,width, height);
@@ -77,6 +79,18 @@ int main(int argc, char** argv) {
 
   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  GLfloat time = 0.0f;
+
+  GLfloat scanline = 0.0f;
+
+  int toPrint = 0;
+
+  int direction = 1;
+
+
   while(!glfwWindowShouldClose(window))
   {
     process_input(window);
@@ -85,6 +99,35 @@ int main(int argc, char** argv) {
 
     glClearColor(0.78125f,0.6328125f,0.78125f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+
+
+    if (time >= 1.0f || time <= -1.0f){
+      direction *=-1;
+    }
+
+    scanline += 0.01f;
+
+    if (scanline > 30.02f) {
+      scanline = 0.0f;
+    }
+
+    if (direction > 0) {
+      time += 0.01f;
+    } else {
+      time -=0.01f;
+    }
+
+
+    toPrint +=1;
+    if (toPrint > 30) {
+      toPrint = 0;
+      printf("Current time is: %f\n", time);
+      printf("Current scanline is: %f\n", scanline);
+    }
+
+    glUniform1f(m->s->time_variable, time);
+    glUniform1f(m->s->scanline_variable, scanline);
 
     draw(m);
 
