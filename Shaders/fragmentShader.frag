@@ -20,7 +20,10 @@ void main()
     alpha = 0.02-alpha;
     alpha = alpha *100;
 
-    alpha = blah + alpha;
+    //blah += alpha;
 
-    FragColor = vec4(1.0f, 0.5f, alpha, blah);
+    alpha = max(blah, alpha);
+    alpha = alpha * 0.8;
+
+    FragColor = vec4(1.0f, 0.5f, 0.5f, alpha);
 }
