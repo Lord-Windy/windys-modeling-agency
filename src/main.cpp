@@ -115,16 +115,16 @@ int main(int argc, char** argv) {
       direction *=-1;
     }
 
-    scanline += delta_time * 0.01f;
+    scanline += delta_time * 0.8f;
 
     if (scanline > 30.02f) {
       scanline = 0.0f;
     }
 
     if (direction > 0) {
-      time += delta_time *  0.01f;
+      time += delta_time *  0.8f;
     } else {
-      time -= delta_time *  0.01f;
+      time -= delta_time *  0.8f;
     }
 
 
