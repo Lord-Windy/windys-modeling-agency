@@ -17,7 +17,7 @@ void main()
     float n_offset = (y_offset+1.0f)/2;
 
     float alpha = cos(PI*n_offset - (scanline*PI)) + 1;
-    alpha = 0.02-alpha;
+    alpha = 0.007-alpha;
     alpha = alpha *100;
 
     //blah += alpha;
