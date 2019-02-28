@@ -83,8 +83,13 @@ int main(int argc, char** argv) {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   GLfloat time = 0.0f;
-
   GLfloat scanline = 0.0f;
+
+  double delta_time = 0.0f;
+  double current_time = 0.0f;
+  double last_time = 0.0f;
+
+  last_time = glfwGetTime();
 
   int toPrint = 0;
 
@@ -94,6 +99,10 @@ int main(int argc, char** argv) {
   while(!glfwWindowShouldClose(window))
   {
     process_input(window);
+
+    current_time = glfwGetTime();
+    delta_time = current_time - last_time;
+
 
 
 
@@ -106,16 +115,16 @@ int main(int argc, char** argv) {
       direction *=-1;
     }
 
-    scanline += 0.01f;
+    scanline += delta_time * 0.01f;
 
     if (scanline > 30.02f) {
       scanline = 0.0f;
     }
 
     if (direction > 0) {
-      time += 0.01f;
+      time += delta_time *  0.01f;
     } else {
-      time -=0.01f;
+      time -= delta_time *  0.01f;
     }
 
 
@@ -133,6 +142,8 @@ int main(int argc, char** argv) {
 
     glfwSwapBuffers(window);
     glfwPollEvents();
+
+    last_time = current_time;
   }
 
   glfwTerminate();
