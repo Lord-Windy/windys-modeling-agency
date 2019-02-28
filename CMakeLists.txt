@@ -10,7 +10,7 @@ ELSEIF(UNIX)
     link_directories(/usr/lib/x86_64-linux-gnu/)
 ENDIF()
 
-add_executable(Glamour src/main.cpp src/glad.c src/Model.cpp src/ShaderProgram.cpp src/Helper.cpp src/json.hpp src/tiny_gltf.h src/stb_image.h src/stb_image_write.h)
+add_executable(Glamour src/main.cpp src/glad.c src/Model.cpp src/ShaderProgram.cpp src/Helper.cpp )
 
 if (APPLE)
     target_link_libraries(Glamour "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo -framework Carbon -l glfw" )
